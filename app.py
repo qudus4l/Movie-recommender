@@ -69,7 +69,7 @@ try:
         if username:
             if username in usernames:
                 if authentication_status:
-                    random_user_id = random.randint(1, 10)
+                    random_user_id = random.randint(1, 20)
                     # Check if the user has already seen and updated suggestions
                     user_data = db.get(email)
                     suggestions_seen = user_data.get('suggestions_seen', False)
