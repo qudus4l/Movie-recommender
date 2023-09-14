@@ -65,104 +65,106 @@ try:
     if not authentication_status:
         sign_up()
 
-    if username:
-        if username in usernames:
-            if authentication_status:
-                random_user_id = random.randint(1, 10)
-                # Check if the user has already seen and updated suggestions
-                user_data = db.get(email)
-                suggestions_seen = user_data.get('suggestions_seen', False)
-                
-                if not suggestions_seen:
-                    recommendations = get_movie_recommendations(random_user_id, 20)
-                    if user_data:
-                        liked_movies = user_data.get('liked_movies', [])
-                        for i in recommendations:
-                            liked_movies.append(i)
-
-                        # Update the liked movies in the user's data
-                        user_data['liked_movies'] = liked_movies
-                        user_data['suggestions_seen'] = True
-
-                        # Put the updated user data back into the database
-                        db.put(user_data)
-                # let User see app
-                st.sidebar.subheader(f'Welcome {username}')
-                Authenticator.logout('Log Out', 'sidebar')
-
-
-                # Movie selection component
-                st.title('Movie Recommendation System')
-                st.write('Welcome to the Movie Recommendation System. Click get new recommendations to see your movie suggestions')
-                selected_movie = st.selectbox('Search Movies', movie_titles)
-                st.subheader('These are your suggestions:')
-                if user_data:
-                    liked_movies = user_data.get('liked_movies', [])
-                    if liked_movies:
-                        liked_movies_text = '\n'.join(liked_movies)
-                        st.text_area('', liked_movies_text, height=200)
-
-                # Display selected movie title and year
-                if selected_movie:
-                    st.subheader('Selected Movie:')
-                    st.write(selected_movie)
-
-                    # Display genres for the selected movie
-                    selected_movie_genres = movie_genre_map.get(selected_movie)
-                    if selected_movie_genres:
-                        st.write(", ".join(selected_movie_genres))
-                    else:
-                        st.warning('Genres information not available for this movie.')
-
-                if st.button("Like"):
-                    # Get the user's current liked movies
+    else:
+        if username:
+            if username in usernames:
+                if authentication_status:
+                    random_user_id = random.randint(1, 10)
+                    # Check if the user has already seen and updated suggestions
                     user_data = db.get(email)
-                    if user_data:
-                        liked_movies = user_data.get('liked_movies', [])
-                        liked_movies.append(selected_movie)
-                        update_liked_movies(email, liked_movies)
-                        st.success(f"You've added '{selected_movie}' to your recommended list!")
-                st.write('Like a movie to get better recommendations!')
-                if st.button("Get New Recommendations"):
-                    st.write(f"Recommended movies for {username}:")
-
-
-
-                    # Get recommendations based on the remaining slots
-                    recommendations = get_movie_recommendations(random_user_id, 3)
-                    if user_data:
-                        liked_movies = user_data.get('liked_movies', [])
-                        for i in recommendations:
-                            liked_movies.append(i)
-
-                        # Update the liked movies in the user's data
-                        user_data['liked_movies'] = liked_movies
-                        # Put the updated user data back into the database
-                        db.put(user_data)
-
-                    # Pick 20 random movies from liked_movies (if there are at least 20 liked movies)
-                    if len(liked_movies) >= 20:
-                        random_liked_movies = random.sample(liked_movies, 20)
-                    else:
-                        random_liked_movies = liked_movies
-
-                    # Combine liked movies and recommendations
-                    updated_recommendations = random_liked_movies
+                    suggestions_seen = user_data.get('suggestions_seen', False)
                     
-                    for i, movie in enumerate(updated_recommendations, 1):
-                        st.write(f'{i}. {movie}')
-                
-                
-            elif not authentication_status:
-                with info:
-                    st.error('Incorrect Password or username')
+                    if not suggestions_seen:
+                        recommendations = get_movie_recommendations(random_user_id, 20)
+                        if user_data:
+                            liked_movies = user_data.get('liked_movies', [])
+                            for i in recommendations:
+                                liked_movies.append(i)
+
+                            # Update the liked movies in the user's data
+                            user_data['liked_movies'] = liked_movies
+                            user_data['suggestions_seen'] = True
+
+                            # Put the updated user data back into the database
+                            db.put(user_data)
+                    # let User see app
+                    st.sidebar.subheader(f'Welcome {username}')
+                    Authenticator.logout('Log Out', 'sidebar')
+
+
+                    # Movie selection component
+                    st.title('Movie Recommendation System')
+                    st.write('Welcome to the Movie Recommendation System. Click get new recommendations to see your movie suggestions')
+                    selected_movie = st.selectbox('Search Movies', movie_titles)
+                    st.subheader('These are your suggestions:')
+                    if user_data:
+                        liked_movies = user_data.get('liked_movies', [])
+                        if liked_movies:
+                            liked_movies_text = '\n'.join(liked_movies)
+                            st.text_area('', liked_movies_text, height=200)
+
+                    # Display selected movie title and year
+                    if selected_movie:
+                        st.subheader('Selected Movie:')
+                        st.write(selected_movie)
+
+                        # Display genres for the selected movie
+                        selected_movie_genres = movie_genre_map.get(selected_movie)
+                        if selected_movie_genres:
+                            st.write(", ".join(selected_movie_genres))
+                        else:
+                            st.warning('Genres information not available for this movie.')
+
+                    if st.button("Like"):
+                        # Get the user's current liked movies
+                        user_data = db.get(email)
+                        if user_data:
+                            liked_movies = user_data.get('liked_movies', [])
+                            liked_movies.append(selected_movie)
+                            update_liked_movies(email, liked_movies)
+                            st.success(f"You've added '{selected_movie}' to your recommended list!")
+                    st.write('Like a movie to get better recommendations!')
+                    if st.button("Get New Recommendations"):
+                        st.write(f"Recommended movies for {username}:")
+
+
+
+                        # Get recommendations based on the remaining slots
+                        recommendations = get_movie_recommendations(random_user_id, 3)
+                        if user_data:
+                            liked_movies = user_data.get('liked_movies', [])
+                            for i in recommendations:
+                                liked_movies.append(i)
+
+                            # Update the liked movies in the user's data
+                            user_data['liked_movies'] = liked_movies
+                            # Put the updated user data back into the database
+                            db.put(user_data)
+
+                        # Pick 20 random movies from liked_movies (if there are at least 20 liked movies)
+                        if len(liked_movies) >= 20:
+                            random_liked_movies = random.sample(liked_movies, 20)
+                        else:
+                            random_liked_movies = liked_movies
+
+                        # Combine liked movies and recommendations
+                        updated_recommendations = random_liked_movies
+                        
+                        for i, movie in enumerate(updated_recommendations, 1):
+                            st.write(f'{i}. {movie}')
+                    
+                    
+                elif not authentication_status:
+                    with info:
+                        st.error('Incorrect Password or username')
+                else:
+                    with info:
+                        st.warning('Please feed in your credentials')
             else:
                 with info:
-                    st.warning('Please feed in your credentials')
-        else:
-            with info:
-                st.warning('Username does not exist, Please Sign up')
-                sign_up()
+                    st.warning('Username does not exist, Please Sign up')
+                st.write('if page does not refresh, clear cookies')
+                
 
 except:
     st.success('Your network is a little slow, refresh page to continue')

@@ -3,4 +3,4 @@ streamlit-authenticator
 tensorflow
 numpy
 pandas
-deta
+extra_streamlit_components
