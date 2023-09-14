@@ -74,7 +74,8 @@ try:
                 Authenticator.logout('Log Out', 'sidebar')
 
                 # Movie selection component
-                # Movie selection component
+                st.title('Movie Recommendation System')
+                st.write('Welcome to the Movie Recommendation System. Click get new recommendations to see your movie suggestions')
                 selected_movie = st.selectbox('Search Movies', movie_titles)
                 random_user_id = random.randint(1, 10)
 
@@ -90,7 +91,6 @@ try:
                     else:
                         st.warning('Genres information not available for this movie.')
 
-
                 if st.button("Like"):
                     # Get the user's current liked movies
                     user_data = db.get(email)
@@ -98,10 +98,10 @@ try:
                         liked_movies = user_data.get('liked_movies', [])
                         liked_movies.append(selected_movie)
                         update_liked_movies(email, liked_movies)
-                        st.success(f"You liked '{selected_movie}'!")
-
+                        st.success(f"You've added '{selected_movie}' to your recommended list!")
+                st.write('Like a movie to get better recommendations!')
                 if st.button("Get New Recommendations"):
-                    st.write(f"Recommended movies for User {random_user_id}:")
+                    st.write(f"Recommended movies for {username}:")
 
                     # Get liked movies for the user
                     user_data = db.get(email)
