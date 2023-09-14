@@ -1,0 +1,6 @@
+streamlit
+streamlit-authenticator
+tensorflow
+numpy
+pandas
+deta
