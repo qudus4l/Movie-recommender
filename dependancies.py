@@ -26,7 +26,7 @@ def insert_user(email, username, password):
 
     return db.put({'key': email, 'username': username, 'password': password, 'date_joined': date_joined})
 
-def update_liked_movies(email, liked_movies):
+def update_liked_movies(email, liked_moviess):
     """
     Updates the liked movies for a user in the DB, preventing duplicates
     :param email: User's email
@@ -35,7 +35,7 @@ def update_liked_movies(email, liked_movies):
     user_data = db.get(email)
     if user_data:
         existing_liked_movies = set(user_data.get('liked_movies', []))
-        new_liked_movies = list(set(liked_movies) - existing_liked_movies)
+        new_liked_movies = list(set(liked_moviess) - existing_liked_movies)
         if new_liked_movies:
             user_data['liked_movies'] = list(existing_liked_movies.union(new_liked_movies))
             db.put(user_data)

@@ -41,7 +41,6 @@ data = pd.merge(ratings_data, movies_data[['movieId', 'title']], on='movieId', h
 data['userId'] = data['userId'].astype('category').cat.codes.values
 data['movieId'] = data['movieId'].astype('category').cat.codes.values
 data.dropna(subset=['title'], inplace=True)
-
 try:
     users = fetch_users()
     emails = []
@@ -69,15 +68,39 @@ try:
     if username:
         if username in usernames:
             if authentication_status:
+                random_user_id = random.randint(1, 10)
+                # Check if the user has already seen and updated suggestions
+                user_data = db.get(email)
+                suggestions_seen = user_data.get('suggestions_seen', False)
+                
+                if not suggestions_seen:
+                    recommendations = get_movie_recommendations(random_user_id, 20)
+                    if user_data:
+                        liked_movies = user_data.get('liked_movies', [])
+                        for i in recommendations:
+                            liked_movies.append(i)
+
+                        # Update the liked movies in the user's data
+                        user_data['liked_movies'] = liked_movies
+                        user_data['suggestions_seen'] = True
+
+                        # Put the updated user data back into the database
+                        db.put(user_data)
                 # let User see app
                 st.sidebar.subheader(f'Welcome {username}')
                 Authenticator.logout('Log Out', 'sidebar')
+
 
                 # Movie selection component
                 st.title('Movie Recommendation System')
                 st.write('Welcome to the Movie Recommendation System. Click get new recommendations to see your movie suggestions')
                 selected_movie = st.selectbox('Search Movies', movie_titles)
-                random_user_id = random.randint(1, 10)
+                st.subheader('These are your suggestions:')
+                if user_data:
+                    liked_movies = user_data.get('liked_movies', [])
+                    if liked_movies:
+                        liked_movies_text = '\n'.join(liked_movies)
+                        st.text_area('', liked_movies_text, height=200)
 
                 # Display selected movie title and year
                 if selected_movie:
@@ -103,20 +126,28 @@ try:
                 if st.button("Get New Recommendations"):
                     st.write(f"Recommended movies for {username}:")
 
-                    # Get liked movies for the user
-                    user_data = db.get(email)
-                    liked_movies = user_data.get('liked_movies', [])
 
-                    # Calculate the number of recommendations to fetch
-                    max_recommendations = 10
-                    num_liked_movies = len(liked_movies)
-                    remainder = max(max_recommendations - num_liked_movies, 0)
 
                     # Get recommendations based on the remaining slots
-                    recommendations = get_movie_recommendations(random_user_id, n_recommendations=remainder)
+                    recommendations = get_movie_recommendations(random_user_id, 3)
+                    if user_data:
+                        liked_movies = user_data.get('liked_movies', [])
+                        for i in recommendations:
+                            liked_movies.append(i)
+
+                        # Update the liked movies in the user's data
+                        user_data['liked_movies'] = liked_movies
+                        # Put the updated user data back into the database
+                        db.put(user_data)
+
+                    # Pick 20 random movies from liked_movies (if there are at least 20 liked movies)
+                    if len(liked_movies) >= 20:
+                        random_liked_movies = random.sample(liked_movies, 20)
+                    else:
+                        random_liked_movies = liked_movies
 
                     # Combine liked movies and recommendations
-                    updated_recommendations = liked_movies + recommendations
+                    updated_recommendations = random_liked_movies
                     
                     for i, movie in enumerate(updated_recommendations, 1):
                         st.write(f'{i}. {movie}')
@@ -132,6 +163,5 @@ try:
             with info:
                 st.warning('Username does not exist, Please Sign up')
 
-
 except:
-    st.success('Refresh Page')
+    st.success('Your network is a little slow, refresh page to continue')
