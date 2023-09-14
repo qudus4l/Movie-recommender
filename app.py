@@ -162,6 +162,7 @@ try:
         else:
             with info:
                 st.warning('Username does not exist, Please Sign up')
+                sign_up()
 
 except:
     st.success('Your network is a little slow, refresh page to continue')
