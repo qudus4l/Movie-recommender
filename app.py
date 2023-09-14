@@ -8,7 +8,7 @@ import numpy as np
 from deta import Deta
 
 
-st.set_page_config(page_title='Streamlit', page_icon='📺', initial_sidebar_state='collapsed')
+st.set_page_config(page_title='MR App', page_icon='📺', initial_sidebar_state='collapsed')
 
 # Read the CSV file
 df = pd.read_csv('movies.csv')
